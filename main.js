@@ -2,7 +2,7 @@ function rand_range(min, max) {
     return Math.random() * (max - min) + min
 }
 
-const initial_vectors = Array(100).fill(0).map(e => {
+let vectors = Array(100).fill(0).map(e => {
     const x = rand_range(-1, 1)
     const y = rand_range(-1, 1)
     const z = rand_range(-1, 1)
@@ -33,34 +33,59 @@ function get_brightness(v) {
 let world_offset = 0
 let world_angle = 0
 const offset_delta = 0.001
-const angle_delta = 0.001
+const angle_delta = 0.002
 
 document.addEventListener('keypress', (ev) => {
     if (ev.key == 'w') {
-        world_offset -= offset_delta
+        vectors = vectors.map(v => ({
+            // translation along z axis
+            x: v.x, 
+            y: v.y, 
+            z: v.z - offset_delta
+        }))
     }
-    else if (ev.key == 's') {
-        world_offset += offset_delta
+    if (ev.key == 's') {
+        vectors = vectors.map(v => ({
+            // translation along z axis
+            x: v.x, 
+            y: v.y, 
+            z: v.z + offset_delta
+        }))
     }
-    else if (ev.key == 'd') {
-        world_angle -= angle_delta
+    if (ev.key == 'd') {
+        vectors = vectors.map(v => ({
+            // translation along z axis
+            x: v.x - offset_delta, 
+            y: v.y, 
+            z: v.z
+        }))
     }
-    else if (ev.key == 'a') {
-        world_angle += angle_delta
+    if (ev.key == 'a') {
+        vectors = vectors.map(v => ({
+            // translation along z axis
+            x: v.x + offset_delta, 
+            y: v.y, 
+            z: v.z
+        }))
     }
-    const transformed_vectors = initial_vectors.map(v => ({
-        // translation along z axis
-        x: v.x, 
-        y: v.y, 
-        z: v.z + world_offset
-    })).map(v => ({
-        // rotation about y axis
-        x: v.x * Math.cos(world_angle) + v.z * Math.sin(world_angle),
-        y: v.y,
-        z: v.x * -Math.sin(world_angle) + v.z * Math.cos(world_angle)
-    }))
+    if (ev.key == 'e') {
+        vectors = vectors.map(v => ({
+            // translation along z axis
+            x: v.x * Math.cos(-angle_delta) + v.z * Math.sin(-angle_delta),
+            y: v.y, 
+            z: v.x * -Math.sin(-angle_delta) + v.z * Math.cos(-angle_delta)
+        }))
+    }
+    if (ev.key == 'q') {
+        vectors = vectors.map(v => ({
+            // translation along z axis
+            x: v.x * Math.cos(angle_delta) + v.z * Math.sin(angle_delta),
+            y: v.y, 
+            z: v.x * -Math.sin(angle_delta) + v.z * Math.cos(angle_delta)
+        }))
+    }
     canvas_whitescreen()
-    transformed_vectors.forEach(v => {
+    vectors.forEach(v => {
         pole = get_pole(v)
         if (pole) {
             canvas_drawpole(pole)
