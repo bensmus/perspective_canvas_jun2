@@ -33,44 +33,45 @@ function get_brightness(v) {
 const offset_delta_mag = 0.001
 const angle_delta_mag = 0.002
 
-let offset_delta_x = 0
-let offset_delta_z = 0
-let angle_delta = 0
+const keyboard_pressed = new Map([['w', false], ['s', false], ['d', false], ['a', false], ['e', false], ['q', false]])
+let keyboard_flag = false
 
-document.addEventListener('keyup', (ev) => {
-    if (ev.key == 'w' || ev.key == 's') {
-        offset_delta_z = 0
-    }
-    if (ev.key == 'a' || ev.key == 'd') {
-        offset_delta_x = 0
-    }
-    if (ev.key == 'q' || ev.key == 'e') {
-        angle_delta = 0
+document.addEventListener('keydown', (ev) => {
+    if (keyboard_pressed.has(ev.key)) {
+        keyboard_pressed.set(ev.key, true)
     }
 })
 
-document.addEventListener('keydown', (ev) => {
-    if (ev.key == 'w') {
-        offset_delta_z = -offset_delta_mag
-    }
-    if (ev.key == 's') {
-        offset_delta_z = offset_delta_mag
-    }
-    if (ev.key == 'd') {
-        offset_delta_x = -offset_delta_mag
-    }
-    if (ev.key == 'a') {
-        offset_delta_x = offset_delta_mag
-    }
-    if (ev.key == 'e') {
-        angle_delta = -angle_delta_mag
-    }
-    if (ev.key == 'q') {
-        angle_delta = angle_delta_mag
+document.addEventListener('keyup', (ev) => {
+    if (keyboard_pressed.has(ev.key)) {
+        keyboard_pressed.set(ev.key, false)
     }
 })
 
 setInterval(() => {
+    let offset_delta_x = 0
+    let offset_delta_z = 0
+    let angle_delta = 0
+    
+    if (keyboard_pressed.get('w')) {
+        offset_delta_z -= offset_delta_mag
+    } 
+    if (keyboard_pressed.get('s')) {
+        offset_delta_z += offset_delta_mag
+    }
+    if (keyboard_pressed.get('d')) {
+        offset_delta_x -= offset_delta_mag
+    }
+    if (keyboard_pressed.get('a')) {
+        offset_delta_x += offset_delta_mag
+    }
+    if (keyboard_pressed.get('q')) {
+        angle_delta -= angle_delta_mag
+    }
+    if (keyboard_pressed.get('e')) {
+        angle_delta += angle_delta_mag
+    }
+    
     // transformations
     vectors = vectors.map(v => ({
         // translation
