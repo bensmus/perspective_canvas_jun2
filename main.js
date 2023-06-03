@@ -1,15 +1,42 @@
-function rand_range(min, max) {
-    return Math.random() * (max - min) + min
+function mix(a, b, w) {
+    return a + (b - a) * w    
 }
 
-let vectors = Array(100).fill(0).map(e => {
-    const x = rand_range(-1, 1)
-    const y = rand_range(-1, 1)
-    const z = rand_range(-1, 1)
-    return {x: x, y: y, z: z}
-})
+function rand_range(min, max) {
+    return mix(min, max, Math.random())
+}
 
-const pole_height = 0.5
+// spawn vectors from which poles eminate
+function vector_grid(xcount, ycount, zcount) {
+    const vectors = Array(xcount * ycount )
+    const xinc = 2 / (xcount - 1)
+    const yinc = 2 / (ycount - 1)
+    const zinc = 2 / (zcount - 1)
+    for (let i = 0; i < xcount; i++) {
+        for (let j = 0; j < ycount; j++) {
+            for (let k = 0; k < zcount; k++) {
+                vectors[k * ycount * xcount + (ycount * j + i)] = {
+                    x: -1 + xinc * i, 
+                    y: -1 + yinc * j, 
+                    z: -1 + zinc * k + 2.2} // poles ahead of camera
+            }
+        }
+    }
+    return vectors
+}
+
+// let vectors = Array(100).fill(0).map(e => {
+//     const x = rand_range(-1, 1)
+//     const y = rand_range(-1, 1)
+//     const z = rand_range(-1, 1)
+//     return {x: x, y: y, z: z}
+// })
+
+
+const pole_height = 0.05
+const fog_amount = 0.4
+
+let vectors = vector_grid(6, 6, 6)
 
 // return pole object from 3d vector
 function get_pole(v) {
@@ -27,7 +54,7 @@ function get_pole(v) {
 function get_brightness(v) {
     const distance = Math.sqrt(v.x ** 2 + (v.y + pole_height / 2) ** 2 + v.z ** 2)
     const max_distance = Math.sqrt(3)
-    return distance / max_distance
+    return mix(0, distance / max_distance, fog_amount)
 }
 
 const offset_delta_mag_x = 0.0007
