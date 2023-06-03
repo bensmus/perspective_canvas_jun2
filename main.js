@@ -30,8 +30,9 @@ function get_brightness(v) {
     return distance / max_distance
 }
 
-const offset_delta_mag = 0.001
-const angle_delta_mag = 0.002
+const offset_delta_mag_x = 0.0007
+const offset_delta_mag_z = 0.0012
+const angle_delta_mag = 0.0025
 
 const keyboard_pressed = new Map([['w', false], ['s', false], ['d', false], ['a', false], ['e', false], ['q', false]])
 let keyboard_flag = false
@@ -54,22 +55,22 @@ setInterval(() => {
     let angle_delta = 0
     
     if (keyboard_pressed.get('w')) {
-        offset_delta_z -= offset_delta_mag
+        offset_delta_z -= offset_delta_mag_z
     } 
     if (keyboard_pressed.get('s')) {
-        offset_delta_z += offset_delta_mag
+        offset_delta_z += offset_delta_mag_z
     }
     if (keyboard_pressed.get('d')) {
-        offset_delta_x -= offset_delta_mag
+        offset_delta_x -= offset_delta_mag_x
     }
     if (keyboard_pressed.get('a')) {
-        offset_delta_x += offset_delta_mag
+        offset_delta_x += offset_delta_mag_x
     }
     if (keyboard_pressed.get('q')) {
-        angle_delta -= angle_delta_mag
+        angle_delta += angle_delta_mag
     }
     if (keyboard_pressed.get('e')) {
-        angle_delta += angle_delta_mag
+        angle_delta -= angle_delta_mag
     }
     
     // transformations
