@@ -54,7 +54,7 @@ function get_pole(v) {
 function get_brightness(v) {
     const distance = Math.sqrt(v.x ** 2 + (v.y + pole_height / 2) ** 2 + v.z ** 2)
     const max_distance = Math.sqrt(3)
-    return mix(0, distance / max_distance, fog_amount)
+    return mix(1, 1-distance / max_distance, fog_amount)
 }
 
 const offset_delta_mag_x = 0.0007
@@ -114,7 +114,7 @@ setInterval(() => {
         z: v.x * -Math.sin(angle_delta) + v.z * Math.cos(angle_delta)
     }))
 
-    canvas_whitescreen()
+    canvas_blackscreen()
     vectors.forEach(v => {
         pole = get_pole(v)
         if (pole) {
