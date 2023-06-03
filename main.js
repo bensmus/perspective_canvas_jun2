@@ -31,7 +31,9 @@ function get_brightness(v) {
 }
 
 let world_offset = 0
+let world_angle = 0
 const offset_delta = 0.001
+const angle_delta = 0.001
 
 document.addEventListener('keypress', (ev) => {
     if (ev.key == 'w') {
@@ -40,13 +42,25 @@ document.addEventListener('keypress', (ev) => {
     else if (ev.key == 's') {
         world_offset += offset_delta
     }
-    const translated_vectors = initial_vectors.map(v => ({
+    else if (ev.key == 'd') {
+        world_angle -= angle_delta
+    }
+    else if (ev.key == 'a') {
+        world_angle += angle_delta
+    }
+    const transformed_vectors = initial_vectors.map(v => ({
+        // translation along z axis
         x: v.x, 
         y: v.y, 
         z: v.z + world_offset
+    })).map(v => ({
+        // rotation about y axis
+        x: v.x * Math.cos(world_angle) + v.z * Math.sin(world_angle),
+        y: v.y,
+        z: v.x * -Math.sin(world_angle) + v.z * Math.cos(world_angle)
     }))
     canvas_whitescreen()
-    translated_vectors.forEach(v => {
+    transformed_vectors.forEach(v => {
         pole = get_pole(v)
         if (pole) {
             canvas_drawpole(pole)
