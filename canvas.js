@@ -20,11 +20,19 @@ function screen_h(h) {
     return canvas.height * (h / 2)
 }
 
+// copied from: https://stackoverflow.com/questions/17242144/javascript-convert-hsb-hsv-color-to-rgb-accurately/54024653#54024653 (Kamil Kiełczewski)
+// input: h in [0,360] and s,v in [0,1] - output: r,g,b in [0,1]
+function hsv2rgb(h,s,v) 
+{                              
+  let f= (n,k=(n+h/60)%6) => v - v*s*Math.max( Math.min(k,4-k,1), 0);     
+  return [f(5),f(3),f(1)];       
+}   
+
 function canvas_drawpole({x: x, y: y, h: h, bright: bright, color: color}) {
-    bright *= 255
     const sx = screen_x(x)
     const sy = screen_y(y)
     const sh = screen_h(h)
-    ctx.fillStyle = `rgb(${color.r * bright}, ${color.g * bright}, ${color.b * bright})`
+    const [r, g, b] = hsv2rgb(color.h, color.s, color.v * bright)
+    ctx.fillStyle = `rgb(${r * 255}, ${g * 255}, ${b * 255})`
     ctx.fillRect(sx, sy, 2, sh)
 }
