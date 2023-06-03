@@ -18,7 +18,8 @@ function vector_grid(xcount, ycount, zcount) {
                 vectors[k * ycount * xcount + (ycount * j + i)] = {
                     x: -1 + xinc * i, 
                     y: -1 + yinc * j, 
-                    z: -1 + zinc * k + 2.2} // poles ahead of camera
+                    z: -1 + zinc * k + 2.2 // poles ahead of camera
+                }
             }
         }
     }
@@ -33,18 +34,18 @@ function vector_grid(xcount, ycount, zcount) {
 // })
 
 
-const pole_height = 0.05
+const pole_height = 0.04
 const fog_amount = 0.4
 
-let vectors = vector_grid(6, 6, 6)
+let vectors = vector_grid(10, 10, 10)
 
 // return pole object from 3d vector
-function get_pole(v) {
+function get_pole(v, v_to_color) {
     if (v.z > 0) {
         const pole_x = v.x / v.z
         const pole_y = v.y / v.z
         const pole_y_bottom = (v.y + pole_height) / v.z
-        return {x: pole_x, y: pole_y, h: pole_y - pole_y_bottom, b: get_brightness(v)}
+        return {x: pole_x, y: pole_y, h: pole_y - pole_y_bottom, bright: get_brightness(v), color: v_to_color(v)}
     }
     return null
 }
@@ -54,7 +55,7 @@ function get_pole(v) {
 function get_brightness(v) {
     const distance = Math.sqrt(v.x ** 2 + (v.y + pole_height / 2) ** 2 + v.z ** 2)
     const max_distance = Math.sqrt(3)
-    return mix(1, 1-distance / max_distance, fog_amount)
+    return mix(1, 1 - distance / max_distance, fog_amount)
 }
 
 const offset_delta_mag_x = 0.0007
@@ -116,7 +117,10 @@ setInterval(() => {
 
     canvas_blackscreen()
     vectors.forEach(v => {
-        pole = get_pole(v)
+        pole = get_pole(
+            v, 
+            ({x: x, y: y, z: z}) => ({r: x, g: y, b: z})
+        )
         if (pole) {
             canvas_drawpole(pole)
         }
