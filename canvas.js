@@ -25,7 +25,6 @@ function canvas_drawpole({x: x, y: y, h: h, b: b}) {
     const sx = screen_x(x)
     const sy = screen_y(y)
     const sh = screen_h(h)
-    console.log(x, y, sx, sy)
     ctx.fillStyle = `rgb(${b}, ${b}, ${b})`
     ctx.fillRect(sx, sy, 2, sh)
 }

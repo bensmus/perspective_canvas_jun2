@@ -30,60 +30,61 @@ function get_brightness(v) {
     return distance / max_distance
 }
 
-let world_offset = 0
-let world_angle = 0
-const offset_delta = 0.001
-const angle_delta = 0.002
+const offset_delta_mag = 0.001
+const angle_delta_mag = 0.002
 
-document.addEventListener('keypress', (ev) => {
+let offset_delta_x = 0
+let offset_delta_z = 0
+let angle_delta = 0
+
+document.addEventListener('keyup', (ev) => {
+    if (ev.key == 'w' || ev.key == 's') {
+        offset_delta_z = 0
+    }
+    if (ev.key == 'a' || ev.key == 'd') {
+        offset_delta_x = 0
+    }
+    if (ev.key == 'q' || ev.key == 'e') {
+        angle_delta = 0
+    }
+})
+
+document.addEventListener('keydown', (ev) => {
     if (ev.key == 'w') {
-        vectors = vectors.map(v => ({
-            // translation along z axis
-            x: v.x, 
-            y: v.y, 
-            z: v.z - offset_delta
-        }))
+        offset_delta_z = -offset_delta_mag
     }
     if (ev.key == 's') {
-        vectors = vectors.map(v => ({
-            // translation along z axis
-            x: v.x, 
-            y: v.y, 
-            z: v.z + offset_delta
-        }))
+        offset_delta_z = offset_delta_mag
     }
     if (ev.key == 'd') {
-        vectors = vectors.map(v => ({
-            // translation along z axis
-            x: v.x - offset_delta, 
-            y: v.y, 
-            z: v.z
-        }))
+        offset_delta_x = -offset_delta_mag
     }
     if (ev.key == 'a') {
-        vectors = vectors.map(v => ({
-            // translation along z axis
-            x: v.x + offset_delta, 
-            y: v.y, 
-            z: v.z
-        }))
+        offset_delta_x = offset_delta_mag
     }
     if (ev.key == 'e') {
-        vectors = vectors.map(v => ({
-            // translation along z axis
-            x: v.x * Math.cos(-angle_delta) + v.z * Math.sin(-angle_delta),
-            y: v.y, 
-            z: v.x * -Math.sin(-angle_delta) + v.z * Math.cos(-angle_delta)
-        }))
+        angle_delta = -angle_delta_mag
     }
     if (ev.key == 'q') {
-        vectors = vectors.map(v => ({
-            // translation along z axis
-            x: v.x * Math.cos(angle_delta) + v.z * Math.sin(angle_delta),
-            y: v.y, 
-            z: v.x * -Math.sin(angle_delta) + v.z * Math.cos(angle_delta)
-        }))
+        angle_delta = angle_delta_mag
     }
+})
+
+setInterval(() => {
+    // transformations
+    vectors = vectors.map(v => ({
+        // translation
+        x: v.x + offset_delta_x, 
+        y: v.y, 
+        z: v.z + offset_delta_z
+    }))
+    vectors = vectors.map(v => ({
+        // rotation
+        x: v.x * Math.cos(angle_delta) + v.z * Math.sin(angle_delta),
+        y: v.y, 
+        z: v.x * -Math.sin(angle_delta) + v.z * Math.cos(angle_delta)
+    }))
+
     canvas_whitescreen()
     vectors.forEach(v => {
         pole = get_pole(v)
@@ -91,4 +92,4 @@ document.addEventListener('keypress', (ev) => {
             canvas_drawpole(pole)
         }
     })
-})
+}, 10)
