@@ -34,5 +34,5 @@ function canvas_drawpole({x: x, y: y, h: h, bright: bright, color: color}) {
     const sh = screen_h(h)
     const [r, g, b] = hsv2rgb(360 * color.h, color.s, color.v * bright)
     ctx.fillStyle = `rgb(${r * 255}, ${g * 255}, ${b * 255})`
-    ctx.fillRect(sx, sy, 2, sh)
+    ctx.fillRect(sx, sy, 10, sh)
 }

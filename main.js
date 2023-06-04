@@ -76,7 +76,7 @@ function get_brightness(v) {
 
 // take centered vector and time and output hue (between 0 and 1)
 function get_hue(v, time) {
-    return vector_distance(v.x, v.y, v.z) / max_distance
+    return ((vector_distance(v.x, v.y, v.z) / max_distance) / 1.2) ** 2
 }
 
 const offset_mag_x = 0.001
