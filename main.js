@@ -1,3 +1,19 @@
+// --------- Keep track of what keys are pressed ------------ //
+const keyboard_pressed = new Map([['w', false], ['s', false], ['d', false], ['a', false], ['e', false], ['q', false]])
+
+document.addEventListener('keydown', (ev) => {
+    if (keyboard_pressed.has(ev.key)) {
+        keyboard_pressed.set(ev.key, true)
+    }
+})
+
+document.addEventListener('keyup', (ev) => {
+    if (keyboard_pressed.has(ev.key)) {
+        keyboard_pressed.set(ev.key, false)
+    }
+})
+// ---------------------------------------------------------- //
+
 function mix(a, b, w) {
     return a + (b - a) * w    
 }
@@ -45,31 +61,30 @@ function get_pole(v, color) {
     return null
 }
 
+function vector_distance(x, y, z) {
+    return Math.sqrt(x ** 2 + y ** 2 + z ** 2)
+}
+
+const max_distance = Math.sqrt(3)
+
 // how bright should the pole at v be?
 // based on distance to pole midpoint
 function get_brightness(v) {
-    const distance = Math.sqrt(v.x ** 2 + (v.y + pole_height / 2) ** 2 + v.z ** 2)
-    const max_distance = Math.sqrt(3)
+    const distance = vector_distance(v.x, v.y + pole_height, v.z)
     return mix(1, 1 - distance / max_distance, fog_amount)
+}
+
+// take centered vector and time and output hue (between 0 and 1)
+function get_hue(v, time) {
+    return vector_distance(v.x, v.y, v.z) / max_distance
 }
 
 const offset_mag_x = 0.001
 const offset_mag_z = 0.002
 const angle_mag = 0.003
 
-const keyboard_pressed = new Map([['w', false], ['s', false], ['d', false], ['a', false], ['e', false], ['q', false]])
-
-document.addEventListener('keydown', (ev) => {
-    if (keyboard_pressed.has(ev.key)) {
-        keyboard_pressed.set(ev.key, true)
-    }
-})
-
-document.addEventListener('keyup', (ev) => {
-    if (keyboard_pressed.has(ev.key)) {
-        keyboard_pressed.set(ev.key, false)
-    }
-})
+let time = 0
+const tick = 10
 
 setInterval(() => {
     let offset_x = 0
@@ -112,10 +127,12 @@ setInterval(() => {
     transformed_vectors.forEach((v, i) => {
         pole = get_pole(
             v, 
-            {h: 360 * centered_vectors[i].x / 5 + 80, s: 1, v: 1}
+            {h: get_hue(centered_vectors[i], time), s: 1, v: 1}
         )
         if (pole) {
             canvas_drawpole(pole)
         }
     })
-}, 10)
+
+    time += tick;
+}, tick)
