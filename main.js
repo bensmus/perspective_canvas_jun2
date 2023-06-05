@@ -54,18 +54,18 @@ let transformed_vectors = vector_grid(grid_res).map(({x: x, y: y, z: z}) => ({x:
 
 // return rect object from 3d vector
 // rect object coordinates are not canvas-size-specific
-function get_rect(v) {
-    if (v.z > 0) {
-        const rect_x = v.x / v.z
-        const rect_y = v.y / v.z
-        const rect_x_right = (v.x + rect_width) / v.z
-        const rect_y_bottom = (v.y + rect_height) / v.z
+function get_rect(vector) {
+    if (vector.z > 0) {
+        const rect_x = vector.x / vector.z
+        const rect_y = vector.y / vector.z
+        const rect_x_right = (vector.x + rect_width) / vector.z
+        const rect_y_bottom = (vector.y + rect_height) / vector.z
         return {
             left: rect_x, 
             top: rect_y, 
             width: rect_x_right - rect_x,
             height: rect_y_bottom - rect_y,
-            z: v.z, // used by z-buffer
+            z: vector.z, // used by z-buffer
         }
     }
     return null
@@ -91,9 +91,9 @@ function get_hsv_hue(vector, time) {
     return hue
 }
 
-const offset_mag_x = 0.01
-const offset_mag_z = 0.02
-const angle_mag = 0.03
+const offset_mag_x = 0.001
+const offset_mag_z = 0.002
+const angle_mag = 0.003
 
 let time = 0
 const tick = 10
@@ -137,12 +137,19 @@ setInterval(() => {
 
     canvas_clear()
     transformed_vectors.forEach((vector, i) => {
-        const color = {h: get_hsv_hue(centered_vectors[i], time), s: 1, v: get_hsv_value(vector)}
+        const hsv = {h: get_hsv_hue(centered_vectors[i], time), s: 1, v: get_hsv_value(vector)}
         rect = get_rect(vector)
         if (rect) {
-            canvas_drawrect(rect, color)
+            canvas_drawrect({...rect, rgb: hsv2rgb(hsv)})
         }
     })
     canvas_update()
     time += tick;
 }, tick)
+
+// copied from: https://stackoverflow.com/questions/17242144/javascript-convert-hsb-hsv-color-to-rgb-accurately/54024653#54024653 (Kamil Kiełczewski)
+// input: h in [0,360] and s,v in [0,1] - output: r,g,b in [0,255]
+function hsv2rgb({h: h, s: s, v: v}) {                              
+    let f= (n,k=(n+h/60)%6) => v - v*s*Math.max( Math.min(k,4-k,1), 0);     
+    return {r: 255 * f(5), g: 255 * f(3), b: 255 * f(1)};       
+}   
