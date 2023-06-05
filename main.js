@@ -23,7 +23,7 @@ function rand_range(min, max) {
 }
 
 // spawn vectors from which poles eminate
-function vector_grid(xcount, ycount, zcount) {
+function vector_grid({x: xcount, y: ycount, z: zcount}) {
     const vectors = Array(xcount * ycount )
     const xinc = 2 / (xcount - 1)
     const yinc = 2 / (ycount - 1)
@@ -42,21 +42,31 @@ function vector_grid(xcount, ycount, zcount) {
     return vectors
 }
 
-const pole_height = 0.04
+const rect_height = 0.04
+const rect_width = 0.04
 const fog_amount = 0.4
 
-const centered_vectors = vector_grid(11, 11, 11) // cube of vectors centered around origin
+const grid_res = {x: 11, y: 11, z: 11} // good value 11, 11, 11
+const centered_vectors = vector_grid(grid_res) // cube of vectors centered around origin
 Object.freeze(centered_vectors)
 
-let transformed_vectors = vector_grid(11, 11, 11).map(({x: x, y: y, z: z}) => ({x: x, y: y, z: z + 2.2})) // cube of vectors that will be updated every time user moves world
+let transformed_vectors = vector_grid(grid_res).map(({x: x, y: y, z: z}) => ({x: x, y: y, z: z + 2.2})) // cube of vectors that will be updated every time user moves world
 
-// return pole object from 3d vector
-function get_pole(v, color) {
+// return rect object from 3d vector
+// rect object coordinates are not canvas-size-specific
+function get_rect(v) {
     if (v.z > 0) {
-        const pole_x = v.x / v.z
-        const pole_y = v.y / v.z
-        const pole_y_bottom = (v.y + pole_height) / v.z
-        return {x: pole_x, y: pole_y, h: pole_y - pole_y_bottom, bright: get_brightness(v), color: color}
+        const rect_x = v.x / v.z
+        const rect_y = v.y / v.z
+        const rect_x_right = (v.x + rect_width) / v.z
+        const rect_y_bottom = (v.y + rect_height) / v.z
+        return {
+            left: rect_x, 
+            top: rect_y, 
+            width: rect_x_right - rect_x,
+            height: rect_y_bottom - rect_y,
+            z: v.z, // used by z-buffer
+        }
     }
     return null
 }
@@ -67,18 +77,18 @@ function vector_distance(x, y, z) {
 
 const max_distance = Math.sqrt(3)
 
-// how bright should the pole at v be?
-// based on distance to pole midpoint
-function get_brightness(v) {
-    const distance = vector_distance(v.x, v.y + pole_height, v.z)
+// how bright should the rect at v be?
+// based on distance to rect midpoint
+function get_hsv_value(vector) {
+    const distance = vector_distance(vector.x, vector.y + rect_height, vector.z)
     return mix(1, 1 - distance / max_distance, fog_amount)
 }
 
-// take centered vector and time and output hue (between 0 and 1)
-function get_hue(v, time) {
-    const dist_frac = vector_distance(v.x, v.y, v.z) / max_distance
-    const hue = ((Math.sin(time / 5000) + dist_frac) / 2) ** 2
-    return  hue
+// take centered vector and time and output hue (between 0 and 360)
+function get_hsv_hue(vector, time) {
+    const dist_frac = vector_distance(vector.x, vector.y, vector.z) / max_distance
+    const hue = 360 * ((Math.sin(time / 5000) + dist_frac) / 2) ** 2
+    return hue
 }
 
 const offset_mag_x = 0.001
@@ -113,28 +123,25 @@ setInterval(() => {
     }
     
     // transformations
-    transformed_vectors = transformed_vectors.map(v => ({
+    transformed_vectors = transformed_vectors.map(vector => ({
         // rotation
-        x: v.x * Math.cos(angle) + v.z * Math.sin(angle),
-        y: v.y, 
-        z: v.x * -Math.sin(angle) + v.z * Math.cos(angle)
-    })).map(v => ({
+        x: vector.x * Math.cos(angle) + vector.z * Math.sin(angle),
+        y: vector.y, 
+        z: vector.x * -Math.sin(angle) + vector.z * Math.cos(angle)
+    })).map(vector => ({
         // translation
-        x: v.x + offset_x, 
-        y: v.y, 
-        z: v.z + offset_z
+        x: vector.x + offset_x, 
+        y: vector.y, 
+        z: vector.z + offset_z
     }))
 
-    canvas_blackscreen()
-    transformed_vectors.forEach((v, i) => {
-        pole = get_pole(
-            v, 
-            {h: get_hue(centered_vectors[i], time), s: 1, v: 1}
-        )
-        if (pole) {
-            canvas_drawpole(pole)
+    canvas_clear()
+    transformed_vectors.forEach((vector, i) => {
+        const color = {h: get_hsv_hue(centered_vectors[i], time), s: 1, v: get_hsv_value(vector)}
+        rect = get_rect(vector)
+        if (rect) {
+            canvas_drawrect(rect, color)
         }
     })
-
     time += tick;
 }, tick)
