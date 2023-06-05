@@ -4,6 +4,7 @@ canvas.height = window.innerHeight
 canvas.width = window.innerWidth
 
 let zbuffer = new_zbuffer()
+let imgdata = ctx.getImageData(0, 0, canvas.width, canvas.height)
 
 function canvas_clear() {
     ctx.fillStyle = 'black'
@@ -44,7 +45,11 @@ function canvas_drawrect(rect, hsv) {
     // ctx.fillRect(sx, sy, 10, sh)
     
     // draw_rect({left: sx, top: sy, width: 10, height: h}, {r: r * 255, g: g * 255, b: b * 255}, zbuffer, ctx)
-    draw_rect({left: sx, top: sy, width: sw, height: sh, z: rect.z}, rgb, zbuffer, ctx)
+    draw_rect({left: sx, top: sy, width: sw, height: sh, z: rect.z}, rgb)
+}
+
+function canvas_update() {
+    ctx.putImageData(imgdata, 0, 0)
 }
 
 function new_zbuffer() {
@@ -59,28 +64,26 @@ function new_zbuffer() {
 }
 
 // update canvas and zbuffer with rectangle
-function draw_rect(rect, rgb, zbuffer, ctx) {
-    const img_data = ctx.getImageData(rect.left, rect.top, rect.width, rect.height) // same size as rectangle
+function draw_rect(rect, rgb) {
     // loop through all rectangle pixels
     for (let i = 0; i < rect.width; i++) {
         for (let j = 0; j < rect.height; j++) {
-            // array index must be integer
-            const zbuffer_x = Math.round(rect.left + i)
-            const zbuffer_y = Math.round(rect.top + j)
-            if (zbuffer_x > 0 && zbuffer_x < canvas.width && zbuffer_y > 0 && zbuffer_y < canvas.height) { // rectangle pixel exists on screen
-                const zbuffer_val = zbuffer[zbuffer_y][zbuffer_x]
+            // pixel coordinates must be integers
+            const xpixel = Math.round(rect.left + i)
+            const ypixel = Math.round(rect.top + j)
+            if (xpixel > 0 && xpixel < canvas.width && ypixel > 0 && ypixel < canvas.height) { // pixel exists on screen
+                const zbuffer_val = zbuffer[ypixel][xpixel]
                 // selectively draw rectangle's pixels if they pass depth check
                 if (rect.z <= zbuffer_val) {
-                    zbuffer[zbuffer_y][zbuffer_x] = rect.z
-                    img_data_pxset(img_data, i, j, rgb)
+                    zbuffer[ypixel][xpixel] = rect.z
+                    imgdata_pixelset(imgdata, xpixel, ypixel, rgb)
                 }
             }
         }
     }
-    ctx.putImageData(img_data, rect.left, rect.top)
 }
 
-function img_data_pxset(img_data, i, j, rgb) {
+function imgdata_pixelset(img_data, i, j, rgb) {
     const r_index = (j * img_data.width + i) * 4
     img_data.data[r_index] = rgb.r * 255
     img_data.data[r_index + 1] = rgb.g * 255

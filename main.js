@@ -143,5 +143,6 @@ setInterval(() => {
             canvas_drawrect(rect, color)
         }
     })
+    canvas_update()
     time += tick;
 }, tick)
