@@ -77,7 +77,7 @@ function vector_distance(x, y, z) {
 
 const max_distance = Math.sqrt(3)
 
-// how bright should the rect at v be?
+// how bright should the rect at vector be?
 // based on distance to rect midpoint
 function get_hsv_value(vector) {
     const distance = vector_distance(vector.x, vector.y + rect_height, vector.z)
