@@ -7,9 +7,8 @@ let zbuffer = new_zbuffer()
 let imgdata = ctx.getImageData(0, 0, canvas.width, canvas.height)
 
 function canvas_clear() {
-    ctx.fillStyle = 'black'
-    ctx.fillRect(0, 0, canvas.width, canvas.height)
-    zbuffer = new_zbuffer()
+    imgdata.data.fill(0)
+    zbuffer.fill(Infinity)
 }
 
 function screen_x(x) {
@@ -53,13 +52,8 @@ function canvas_update() {
 }
 
 function new_zbuffer() {
-    const zbuffer = []
-    for (let j = 0; j < canvas.height; j++) {
-        zbuffer.push(Array(canvas.width))
-        for (let i = 0; i < canvas.width; i++) {
-            zbuffer[j][i] = Infinity
-        }
-    }
+    const zbuffer = Array(canvas.width * canvas.height)
+    zbuffer.fill(Infinity)
     return zbuffer
 }
 
@@ -69,13 +63,13 @@ function draw_rect(rect, rgb) {
     for (let i = 0; i < rect.width; i++) {
         for (let j = 0; j < rect.height; j++) {
             // pixel coordinates must be integers
-            const xpixel = Math.round(rect.left + i)
-            const ypixel = Math.round(rect.top + j)
+            const xpixel = Math.floor(rect.left + i)
+            const ypixel = Math.floor(rect.top + j)
             if (xpixel > 0 && xpixel < canvas.width && ypixel > 0 && ypixel < canvas.height) { // pixel exists on screen
-                const zbuffer_val = zbuffer[ypixel][xpixel]
+                const zbuffer_val = zbuffer[ypixel * canvas.width + xpixel]
                 // selectively draw rectangle's pixels if they pass depth check
                 if (rect.z <= zbuffer_val) {
-                    zbuffer[ypixel][xpixel] = rect.z
+                    zbuffer[ypixel * canvas.width + xpixel] = rect.z
                     imgdata_pixelset(imgdata, xpixel, ypixel, rgb)
                 }
             }

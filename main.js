@@ -91,9 +91,9 @@ function get_hsv_hue(vector, time) {
     return hue
 }
 
-const offset_mag_x = 0.001
-const offset_mag_z = 0.002
-const angle_mag = 0.003
+const offset_mag_x = 0.01
+const offset_mag_z = 0.02
+const angle_mag = 0.03
 
 let time = 0
 const tick = 10
