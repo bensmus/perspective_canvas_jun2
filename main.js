@@ -96,8 +96,16 @@ function get_hsv_value(vector) {
 // take centered vector and time and output hue (between 0 and 360)
 function get_hsv_hue(vector, time) {
     const dist_frac = vector_distance(vector.x, vector.y, vector.z) / max_distance
-    const hue = 360 * ((Math.sin(time / 5000) + dist_frac) / 2) ** 2
+    const hue = 360 * ((triangle_wave(time / 30000) + dist_frac) / 2) ** 2
     return hue
+}
+
+function frac(x) {
+    return x - Math.floor(x)
+}
+
+function triangle_wave(x) {
+    return Math.abs(2 * frac(x) - 1)
 }
 
 const offset_mag_x = 0.001
