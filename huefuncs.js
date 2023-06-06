@@ -1,5 +1,5 @@
 // -------- all huefuncs  ---------- //
-const huefuncs = [colorshift, onlyred]
+const huefuncs = [colorshift, onlyred, layerrunner]
 
 function colorshift(x, y, z, t) {
     const dist_frac = vector_distance(x, y, z) / max_distance
@@ -9,6 +9,15 @@ function colorshift(x, y, z, t) {
 function onlyred(x, y, z, t) {
     return 0
 }
+
+// Todo: this should really be a value or saturation function
+// a layer 'goes away' and then 'comes towards'
+function layerrunner(x, y, z, t) {
+    const shift = triangle_wave(t / 30000) * 4 - 2
+    const f = -Math.abs(2*z - shift) + 1
+    return Math.max(0, f)
+}
+
 // --------------------------------- //
 
 let huefuncs_index = 0
@@ -30,6 +39,7 @@ function frac(x) {
     return x - Math.floor(x)
 }
 
+// oscillates between 0 and 1 with a period of 1
 function triangle_wave(x) {
     return Math.abs(2 * frac(x) - 1)
 }
