@@ -46,11 +46,20 @@ const rect_height = 0.04
 const rect_width = 0.04
 const fog_amount = 0.4
 
+const initial_angle = Math.PI / 5
+const intial_offset_x = -1.7
+const intial_offset_z = 2.8
+
 const grid_res = {x: 11, y: 11, z: 11} // good value 11, 11, 11
 const centered_vectors = vector_grid(grid_res) // cube of vectors centered around origin
 Object.freeze(centered_vectors)
 
-let transformed_vectors = vector_grid(grid_res).map(({x: x, y: y, z: z}) => ({x: x, y: y, z: z + 2.2})) // cube of vectors that will be updated every time user moves world
+ // cube of vectors that will be updated every time user moves world
+let transformed_vectors = vector_grid(grid_res).map(
+    ({x: x, y: y, z: z}) => ({x: x + intial_offset_x, y: y, z: z + intial_offset_z})
+).map(
+    ({x: x, y: y, z: z}) => ({x: x * Math.cos(initial_angle) + z * Math.sin(initial_angle), y: y, z: x * -Math.sin(initial_angle) + z * Math.cos(initial_angle)})
+)
 
 // return rect object from 3d vector
 // rect object coordinates are not canvas-size-specific
