@@ -15,7 +15,7 @@ document.addEventListener('keyup', (ev) => {
 
 document.addEventListener('keydown', (ev) => {
     if (ev.key == 'f' && !ev.repeat) {
-        huefuncs_next()
+        hsvf_next()
     }
 })
 
@@ -93,15 +93,9 @@ function vector_distance(x, y, z) {
 
 // how bright should the rect at vector be?
 // based on distance to rect midpoint
-function get_hsv_value(vector) {
-    const distance = vector_distance(vector.x, vector.y + rect_height, vector.z)
+function distancedimmer(tx, ty, tz) {
+    const distance = vector_distance(tx, ty + rect_height, tz)
     return mix(1, 1 - distance / max_distance, fog_amount)
-}
-
-// take centered vector and time and output hue (between 0 and 360)
-function get_hsv_hue(vector, time) {
-    const hue = 360 * huefuncs_get()(vector.x, vector.y, vector.z, time)
-    return hue
 }
 
 const offset_mag_x = 0.001
@@ -150,10 +144,14 @@ setInterval(() => {
 
     canvas_clear()
     transformed_vectors.forEach((vector, i) => {
-        const hsv = {h: get_hsv_hue(centered_vectors[i], time), s: 1, v: get_hsv_value(vector)}
+        const {x: tx, y: ty, z: tz} = transformed_vectors[i]
+        const {x: cx, y: cy, z: cz} = centered_vectors[i]
+        const hsv = hsvf()(cx, cy, cz, time)
+        const hsv_dimmed = {...hsv, v: hsv.v * distancedimmer(tx, ty, tz)}
+        const hsv_dimmed_huescaled = {...hsv_dimmed, h: hsv_dimmed.h * 360}
         rect = get_rect(vector)
         if (rect) {
-            canvas_drawrect({...rect, rgb: hsv2rgb(hsv)})
+            canvas_drawrect({...rect, rgb: hsv2rgb(hsv_dimmed_huescaled)})
         }
     })
     canvas_update()
