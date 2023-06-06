@@ -12,6 +12,13 @@ document.addEventListener('keyup', (ev) => {
         keyboard_pressed.set(ev.key, false)
     }
 })
+
+document.addEventListener('keydown', (ev) => {
+    if (ev.key == 'f' && !ev.repeat) {
+        huefuncs_next()
+    }
+})
+
 // ---------------------------------------------------------- //
 
 function mix(a, b, w) {
@@ -84,8 +91,6 @@ function vector_distance(x, y, z) {
     return Math.sqrt(x ** 2 + y ** 2 + z ** 2)
 }
 
-const max_distance = Math.sqrt(3)
-
 // how bright should the rect at vector be?
 // based on distance to rect midpoint
 function get_hsv_value(vector) {
@@ -95,17 +100,8 @@ function get_hsv_value(vector) {
 
 // take centered vector and time and output hue (between 0 and 360)
 function get_hsv_hue(vector, time) {
-    const dist_frac = vector_distance(vector.x, vector.y, vector.z) / max_distance
-    const hue = 360 * ((triangle_wave(time / 30000) + dist_frac) / 2) ** 2
+    const hue = 360 * huefuncs_get()(vector.x, vector.y, vector.z, time)
     return hue
-}
-
-function frac(x) {
-    return x - Math.floor(x)
-}
-
-function triangle_wave(x) {
-    return Math.abs(2 * frac(x) - 1)
 }
 
 const offset_mag_x = 0.001
