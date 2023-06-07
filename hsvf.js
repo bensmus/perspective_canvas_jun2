@@ -6,10 +6,6 @@ function colorshift(x, y, z, t) {
     return {h: ((triangle_wave(t / 30000) + dist_frac) / 2) ** 2, s: 1, v: 1}
 }
 
-function quantize(val, inc) {
-    return Math.round(val / inc) * inc
-}
-
 // a layer 'goes away' and then 'comes towards'
 function layerrunner(x, y, z, t) {
     const runperiod = 2000 // how long to get from first layer to last layer in ms
@@ -51,13 +47,4 @@ function hsvf_next() {
     } else {
         hsvfs_index++   
     }
-}
-
-function frac(x) {
-    return x - Math.floor(x)
-}
-
-// oscillates between 0 and 1 with a period of 1
-function triangle_wave(x) {
-    return Math.abs(2 * frac(x) - 1)
 }
