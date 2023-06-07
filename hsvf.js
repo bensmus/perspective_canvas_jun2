@@ -14,19 +14,26 @@ function quantize(val, inc) {
 function layerrunner(x, y, z, t) {
     const runperiod = 2000 // how long to get from first layer to last layer in ms
     const layerfrac = triangle_wave(t / runperiod) 
-    const layerz = quantize(
-        layerfrac * 2 - 1, 
+    const layerz = layerfrac * 2 - 1
+    
+    // --- hue setting --- //
+    const layerz_quantized = quantize( // the centered vectors are in rows, quantized
+        layerz, 
         1 / (grid_res.z - 1)
     )
     
     let h;
-    const close = (val1, val2) => Math.abs(val1 - val2) < 1e-3 // ignore floating point errors
-    if (close(z, layerz)) {
+    const close = (a, b) => Math.abs(a - b) < 1e-3 // ignore floating point errors
+    if (close(z, layerz_quantized)) {
         h = 0.7
     } else {
         h = 0
     }
-    return {h: h, s: 1, v: 1}
+
+    // --- value setting --- //
+    const value_function = (z) => Math.max(0.4, 1 / Math.abs(z - layerz)) 
+
+    return {h: h, s: 1, v: value_function(z)}
 }
 
 // ------------------------------------------- //
