@@ -6,13 +6,27 @@ function colorshift(x, y, z, t) {
     return {h: ((triangle_wave(t / 30000) + dist_frac) / 2) ** 2, s: 1, v: 1}
 }
 
+function quantize(val, inc) {
+    return Math.round(val / inc) * inc
+}
+
 // a layer 'goes away' and then 'comes towards'
 function layerrunner(x, y, z, t) {
-    const shift = triangle_wave(t / 3000) * 2 - 1
-    const v = -Math.abs(z - shift) + 1
-    const vclamped = Math.max(0.4, v)
-    const currentlayer = Math.floor(((z + 1) / 2) / 11) // todo
-    return {h:0, s: 1, v: vclamped}
+    const runperiod = 2000 // how long to get from first layer to last layer in ms
+    const layerfrac = triangle_wave(t / runperiod) 
+    const layerz = quantize(
+        layerfrac * 2 - 1, 
+        1 / (grid_res.z - 1)
+    )
+    
+    let h;
+    const close = (val1, val2) => Math.abs(val1 - val2) < 1e-3 // ignore floating point errors
+    if (close(z, layerz)) {
+        h = 0.7
+    } else {
+        h = 0
+    }
+    return {h: h, s: 1, v: 1}
 }
 
 // ------------------------------------------- //
