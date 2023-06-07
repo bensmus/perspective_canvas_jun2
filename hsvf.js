@@ -8,9 +8,11 @@ function colorshift(x, y, z, t) {
 
 // a layer 'goes away' and then 'comes towards'
 function layerrunner(x, y, z, t) {
-    const shift = triangle_wave(t / 3000) * 4 - 2
-    const f = -Math.abs(2*z - shift) + 1
-    return {h: 0, s: 1, v: Math.max(0.4, f)}
+    const shift = triangle_wave(t / 3000) * 2 - 1
+    const v = -Math.abs(z - shift) + 1
+    const vclamped = Math.max(0.4, v)
+    const currentlayer = Math.floor(((z + 1) / 2) / 11) // todo
+    return {h:0, s: 1, v: vclamped}
 }
 
 // ------------------------------------------- //
