@@ -15,7 +15,7 @@ document.addEventListener('keyup', (ev) => {
 
 document.addEventListener('keydown', (ev) => {
     if (ev.key == 'f' && !ev.repeat) {
-        hsvf_next()
+        colorf_next()
     }
 })
 
@@ -76,7 +76,7 @@ function vector_distance(x, y, z) {
 
 // how bright should the rect at vector be?
 // based on distance to rect midpoint
-function distancedimmer(tx, ty, tz) {
+function distdim(tx, ty, tz) {
     const distance = vector_distance(tx, ty + rect_height, tz)
     return mix(1, 1 - distance / max_distance, fog_amount)
 }
@@ -129,12 +129,12 @@ setInterval(() => {
     transformed_vectors.forEach((vector, i) => {
         const {x: tx, y: ty, z: tz} = transformed_vectors[i]
         const {x: cx, y: cy, z: cz} = centered_vectors[i]
-        const hsv = hsvf()(cx, cy, cz, time)
-        const hsv_dimmed = {...hsv, v: hsv.v * distancedimmer(tx, ty, tz)}
-        const hsv_dimmed_huescaled = {...hsv_dimmed, h: hsv_dimmed.h * 360}
+        const rgb = colorf()(cx, cy, cz, time)
+        const distdim_factor = distdim(tx, ty, tz)
+        const rgb_dimmed = scale_rgb(rgb, distdim_factor)
         rect = get_rect(vector)
         if (rect) {
-            canvas_drawrect({...rect, rgb: hsv2rgb(hsv_dimmed_huescaled)})
+            canvas_drawrect({...rect, rgb: rgb_dimmed})
         }
     })
     canvas_update()
