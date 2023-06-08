@@ -1,15 +1,15 @@
 // -------- all hsvf (hsv functions) ---------- //
-const hsvfs = [colorshift, layerrunner]
+const hsvfs = [colorshift, layerrunner, pulse]
 
 function colorshift(x, y, z, t) {
-    const dist_frac = vector_distance(x, y, z) / max_distance
-    return {h: ((triangle_wave(t / 30000) + dist_frac) / 2) ** 2, s: 1, v: 1}
+    const distfrac = vector_distance(x, y, z) / max_distance
+    return {h: ((triangle_wave(t / 30000) + distfrac) / 2) ** 2, s: 1, v: 1}
 }
 
 // a layer 'goes away' and then 'comes towards'
 function layerrunner(x, y, z, t) {
-    const runperiod = 2000 // how long to get from first layer to last layer in ms
-    const layerfrac = triangle_wave(t / runperiod) 
+    const period = 2000 // how long to get from first layer to last layer in ms
+    const layerfrac = triangle_wave(t / period) 
     const layerz = layerfrac * 2 - 1
     
     // --- hue setting --- //
@@ -19,8 +19,7 @@ function layerrunner(x, y, z, t) {
     )
     
     let h;
-    const close = (a, b) => Math.abs(a - b) < 1e-3 // ignore floating point errors
-    if (close(z, layerz_quantized)) {
+    if (close(z, layerz_quantized, 1e-3)) { // ignore floating point errors
         h = 0.7
     } else {
         h = 0
@@ -30,6 +29,14 @@ function layerrunner(x, y, z, t) {
     const value_function = (z) => Math.max(0.4, 1 / Math.abs(z - layerz)) 
 
     return {h: h, s: 1, v: value_function(z)}
+}
+
+// center pulses and the rest respond
+function pulse(x, y, z, t) {
+    const period = 1000
+    const animparam = (Math.sin(t / period) + 1) / 2
+    const distfrac = vector_distance(x, y, z) / max_distance
+    return {h: 0, s: 0, v: 1 / (mix(1, 10, animparam) * distfrac)}
 }
 
 // ------------------------------------------- //
