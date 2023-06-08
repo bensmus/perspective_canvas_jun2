@@ -3,7 +3,7 @@ const hsvfs = [colorshift, layerrunner, pulse]
 
 function colorshift(x, y, z, t) {
     const distfrac = vector_distance(x, y, z) / max_distance
-    return {h: ((triangle_wave(t / 30000) + distfrac) / 2) ** 2, s: 1, v: 1}
+    return {h: ((triangle_wave(t / 3000) + distfrac) / 2) ** 2, s: 1, v: 1}
 }
 
 // a layer 'goes away' and then 'comes towards'
@@ -31,12 +31,11 @@ function layerrunner(x, y, z, t) {
     return {h: h, s: 1, v: value_function(z)}
 }
 
-// center pulses and the rest respond
 function pulse(x, y, z, t) {
     const period = 1000
-    const animparam = (Math.sin(t / period) + 1) / 2
-    const distfrac = vector_distance(x, y, z) / max_distance
-    return {h: 0, s: 0, v: 1 / (mix(1, 10, animparam) * distfrac)}
+    const distance = triangle_wave(t / period) * max_distance
+    const distfrac = (vector_distance(x, y, z) - distance) / max_distance
+    return {h: 0, s: 0, v: 1 / distfrac}
 }
 
 // ------------------------------------------- //
