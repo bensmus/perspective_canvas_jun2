@@ -13,9 +13,46 @@
         #my_canvas {
             background-color: black;
         }
+        #info_open {
+            position: absolute;
+            left: 0;
+            top: 0;
+            filter: invert(1);
+            width: 50px;
+            height:50px;
+            opacity: 0.2;
+        }
+        #info_open:hover {
+            opacity: 1;
+        }
+        #info {
+            margin: 5px;
+            padding: 10px;
+            position: absolute;
+            margin-left: auto;
+            margin-right: auto;
+            left: 0;
+            right: 0;
+            /* text-align: center; */
+            background-color: white;
+            width: fit-content;
+            opacity: 0.6;
+            font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+        }
+        #info_close {
+            width: 30px;
+            height: 30px;
+        }
     </style>
 </head>
 <body>
+    <img draggable="false" id="info_open" src="imgs/menu.png" alt="help">
+    <div id="info">
+        <img draggable="false" id="info_close" src="imgs/close.png" alt="help">
+            <div>W, A, S, D: movement</div>
+            <div>Q, E: rotate left and right</div>
+            <div>F: change cube color mode</div>
+    </div>
     <canvas id="my_canvas"></canvas>
     <script src="util.js"></script>
     <script src="config.js"></script>
