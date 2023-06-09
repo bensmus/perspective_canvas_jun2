@@ -5,6 +5,9 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Cube of Colors</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400&display=swap" rel="stylesheet"> 
     <style>
         body {
             margin: 0;
@@ -13,47 +16,38 @@
         #my_canvas {
             background-color: black;
         }
-        #info_open {
+        #info {
+            padding: 5px 10px;
+            width: fit-content;
+            font-family: 'Open Sans', sans-serif;
+            background-color: white;
+            opacity: 0.6;
             position: absolute;
             left: 0;
             top: 0;
-            filter: invert(1);
-            width: 50px;
-            height:50px;
-            opacity: 0.2;
         }
-        #info_open:hover {
-            opacity: 1;
-        }
-        #info {
-            margin: 5px;
-            padding: 10px;
-            position: absolute;
-            margin-left: auto;
-            margin-right: auto;
-            left: 0;
-            right: 0;
-            /* text-align: center; */
-            background-color: white;
-            width: fit-content;
-            opacity: 0.6;
-            font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
-        }
-        #info_close {
+        .icon {
             width: 30px;
             height: 30px;
+            user-select: none;
+        }
+        #info_open {
+            display: none;
         }
     </style>
 </head>
 <body>
-    <img draggable="false" id="info_open" src="imgs/menu.png" alt="help">
     <div id="info">
-        <img draggable="false" id="info_close" src="imgs/close.png" alt="help">
-            <div>W, A, S, D: movement</div>
-            <div>Q, E: rotate left and right</div>
-            <div>F: change cube color mode</div>
+        <img class="icon" draggable="false" id="info_open" src="imgs/menu.png">
+        <img class="icon" draggable="false" id="info_close" src="imgs/close.png">
+        <div id="info_text">
+            <div>W, A, S, D: panning</div>
+            <div>Q, E: rotation</div>
+            <div>F: color mode</div>
+        </div>
     </div>
     <canvas id="my_canvas"></canvas>
+    <script src="info_gui.js"></script>
     <script src="util.js"></script>
     <script src="config.js"></script>
     <script src="canvas.js"></script>
