@@ -6,12 +6,12 @@ info_close.addEventListener('click', () => {
     console.log('closing')
     info_close.style.display = 'none'
     info_text.style.display = 'none'
-    info_open.style.display = 'block'
+    info_open.style.display = 'unset'
 })
 
 info_open.addEventListener('click', () => {
     console.log('opening')
     info_open.style.display = 'none'
-    info_close.style.display = 'block'
-    info_text.style.display = 'block'
+    info_close.style.display = 'unset'
+    info_text.style.display = 'unset'
 })
