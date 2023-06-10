@@ -1,3 +1,8 @@
+import config from "./config.js";
+import { canvas_drawrect, canvas_update, canvas_clear } from "./canvas.js";
+import { colorf, colorf_next } from "./colorf.js";
+import * as util from "./util.js"
+
 // --------- Keep track of what keys are pressed ------------ //
 const keyboard_pressed = new Map([['w', false], ['s', false], ['d', false], ['a', false], ['e', false], ['q', false]])
 
@@ -41,14 +46,14 @@ function vector_grid({x: xcount, y: ycount, z: zcount}) {
     return vectors
 }
 
-const centered_vectors = vector_grid(grid_res) // cube of vectors centered around origin
+const centered_vectors = vector_grid(config.grid_res) // cube of vectors centered around origin
 Object.freeze(centered_vectors)
 
  // cube of vectors that will be updated every time user moves world
-let transformed_vectors = vector_grid(grid_res).map(
-    ({x: x, y: y, z: z}) => ({x: x + intial_offset_x, y: y, z: z + intial_offset_z})
+let transformed_vectors = vector_grid(config.grid_res).map(
+    ({x: x, y: y, z: z}) => ({x: x + config.init_offset_x, y: y, z: z + config.init_offset_z})
 ).map(
-    ({x: x, y: y, z: z}) => ({x: x * Math.cos(initial_angle) + z * Math.sin(initial_angle), y: y, z: x * -Math.sin(initial_angle) + z * Math.cos(initial_angle)})
+    ({x: x, y: y, z: z}) => ({x: x * Math.cos(config.init_angle) + z * Math.sin(config.init_angle), y: y, z: x * -Math.sin(config.init_angle) + z * Math.cos(config.init_angle)})
 )
 
 // return rect object from 3d vector
@@ -57,8 +62,8 @@ function get_rect(vector) {
     if (vector.z > 0) {
         const rect_x = vector.x / vector.z
         const rect_y = vector.y / vector.z
-        const rect_x_right = (vector.x + rect_width) / vector.z
-        const rect_y_bottom = (vector.y + rect_height) / vector.z
+        const rect_x_right = (vector.x + config.rect_width) / vector.z
+        const rect_y_bottom = (vector.y + config.rect_height) / vector.z
         return {
             left: rect_x, 
             top: rect_y, 
@@ -70,15 +75,11 @@ function get_rect(vector) {
     return null
 }
 
-function vector_distance(x, y, z) {
-    return Math.sqrt(x ** 2 + y ** 2 + z ** 2)
-}
-
 // how bright should the rect at vector be?
 // based on distance to rect midpoint
 function distdim(tx, ty, tz) {
-    const distance = vector_distance(tx, ty + rect_height, tz)
-    return mix(1, 1 - distance / max_distance, fog_amount)
+    const distance = util.vector_distance(tx, ty + config.rect_height, tz)
+    return util.mix(1, 1 - distance / util.max_distance, config.fog_amount)
 }
 
 const offset_mag_x = 0.001
@@ -131,8 +132,8 @@ setInterval(() => {
         const {x: cx, y: cy, z: cz} = centered_vectors[i]
         const rgb = colorf()(cx, cy, cz, time)
         const distdim_factor = distdim(tx, ty, tz)
-        const rgb_dimmed = scale_rgb(rgb, distdim_factor)
-        rect = get_rect(vector)
+        const rgb_dimmed = util.scale_rgb(rgb, distdim_factor)
+        const rect = get_rect(vector)
         if (rect) {
             canvas_drawrect({...rect, rgb: rgb_dimmed})
         }
