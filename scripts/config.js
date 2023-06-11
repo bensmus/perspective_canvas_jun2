@@ -1,6 +1,5 @@
 const config = {
-    rect_height: 0.04,
-    rect_width: 0.04,
+    square_edge: 0.06,
     fog_amount: 0.4,
     init_angle: Math.PI / 5,
     init_offset_x: -1.7,

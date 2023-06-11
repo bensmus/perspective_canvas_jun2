@@ -1,9 +1,15 @@
+/*
+Draws a bunch of squares spaced out on a 3D grid, which make up the shape of a cube.
+Pressing keyboard moves the squares around (transforms the 3D grid).
+*/
+
 import config from "./config.js";
-import { canvas_drawrect, canvas_update, canvas_clear } from "./canvas.js";
+import { canvas_drawsquare, canvas_update, canvas_clear } from "./canvas.js";
 import { colorf, colorf_next } from "./colorf.js";
 import * as util from "./util.js"
 
-// --------- Keep track of what keys are pressed ------------ //
+// --------- keep track of what keys are pressed ------------ //
+
 const keyboard_pressed = new Map([['w', false], ['s', false], ['d', false], ['a', false], ['e', false], ['q', false]])
 
 document.addEventListener('keydown', (ev) => {
@@ -26,7 +32,7 @@ document.addEventListener('keydown', (ev) => {
 
 // ---------------------------------------------------------- //
 
-// spawn vectors from which poles eminate
+// spawn vectors from which squares eminate
 function vector_grid({x: xcount, y: ycount, z: zcount}) {
     const vectors = Array(xcount * ycount )
     const xinc = 2 / (xcount - 1)
@@ -56,29 +62,26 @@ let transformed_vectors = vector_grid(config.grid_res).map(
     ({x: x, y: y, z: z}) => ({x: x * Math.cos(config.init_angle) + z * Math.sin(config.init_angle), y: y, z: x * -Math.sin(config.init_angle) + z * Math.cos(config.init_angle)})
 )
 
-// return rect object from 3d vector
-// rect object coordinates are not canvas-size-specific
-function get_rect(vector) {
+// return square object from 3d vector
+// square object coordinates are not canvas-size-specific
+function get_square(vector) {
     if (vector.z > 0) {
-        const rect_x = vector.x / vector.z
-        const rect_y = vector.y / vector.z
-        const rect_x_right = (vector.x + config.rect_width) / vector.z
-        const rect_y_bottom = (vector.y + config.rect_height) / vector.z
+        const square_x = vector.x / vector.z
+        const square_y = vector.y / vector.z
         return {
-            left: rect_x, 
-            top: rect_y, 
-            width: rect_x_right - rect_x,
-            height: rect_y_bottom - rect_y,
+            left: square_x, 
+            top: square_y, 
+            edge: config.square_edge / vector.z,
             z: vector.z, // used by z-buffer
         }
     }
     return null
 }
 
-// how bright should the rect at vector be?
-// based on distance to rect midpoint
+// how bright should the square at vector be?
+// based on distance to square midpoint
 function distdim(tx, ty, tz) {
-    const distance = util.vector_distance(tx, ty + config.rect_height, tz)
+    const distance = util.vector_distance(tx, ty + config.square_edge, tz)
     return util.mix(1, 1 - distance / util.max_distance, config.fog_amount)
 }
 
@@ -89,6 +92,7 @@ const angle_mag = 0.003
 let time = 0
 const tick = 10
 
+// update square positions and draw them
 setInterval(() => {
     let offset_x = 0
     let offset_z = 0
@@ -133,9 +137,9 @@ setInterval(() => {
         const rgb = colorf()(cx, cy, cz, time)
         const distdim_factor = distdim(tx, ty, tz)
         const rgb_dimmed = util.scale_rgb(rgb, distdim_factor)
-        const rect = get_rect(vector)
-        if (rect) {
-            canvas_drawrect({...rect, rgb: rgb_dimmed})
+        const square = get_square(vector)
+        if (square) {
+            canvas_drawsquare({...square, rgb: rgb_dimmed})
         }
     })
     canvas_update()
